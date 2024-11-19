@@ -7,15 +7,8 @@ export async function initDatabase() {
     try {
         await db.run('BEGIN TRANSACTION');
 
-        // Reference to initdb.js for schema
         console.log('Dropping existing tables...');
-        const dropTables = [
-            'grades',
-            'students',
-            'curricula',
-            'sessions',
-            'users'
-        ];
+        const dropTables = Object.keys(tableSchemas).reverse();
 
         for (const table of dropTables) {
             await db.run(`DROP TABLE IF EXISTS ${table}`);

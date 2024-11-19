@@ -41,3 +41,16 @@ export async function validateSession(db, sessionToken) {
         handleDatabaseError(error, 'validateSession');
     }
 } 
+
+export async function createUser(db, { name, email, password_hash }) {
+    try {
+        const result = await db.run(
+            'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)', 
+            [name, email, password_hash]
+        );
+        return result.lastID;
+    } catch (error) {
+        console.error('Error creating user:', error);
+        throw error;
+    }
+}

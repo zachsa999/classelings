@@ -12,24 +12,28 @@ async function generateAndInsertData() {
     try {
         await db.run('BEGIN TRANSACTION');
 
-        // Create a teacher account
+        console.log('Creating teacher user...');
+        let password = bcrypt.hashSync('900zdw900', 10);
         const teacherId = await createUser(db, {
             name: 'Zachary Wiebe',
             email: 'bot@zachw.ca',
-            password: '900zdw900'
+            password_hash: password
         });
+        console.log('Created teacher with ID:', teacherId);
 
         // Create curricula
+        console.log('Creating curricula...');
         const subjects = ['Math', 'Science', 'English', 'History'];
         for (const subject of subjects) {
             for (let grade = 1; grade <= 12; grade++) {
-                await createCurriculum(db, {
+                const curriculumId = await createCurriculum(db, {
                     title: `${subject} Grade ${grade}`,
                     subject,
                     grade_level: grade,
                     description: `Core ${subject} curriculum for grade ${grade}`,
                     teacher_id: teacherId
                 });
+                console.log(`Created curriculum: ${subject} Grade ${grade} with ID: ${curriculumId}`);
             }
         }
 
