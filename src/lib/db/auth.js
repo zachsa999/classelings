@@ -1,4 +1,4 @@
-import { handleDatabaseError, executeTransaction } from './utils.js';
+import { handleDatabaseError } from './utils.js';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 

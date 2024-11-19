@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { getDb } from './index.js';
-import { createUser } from './auth.js';
-import { createCurriculum } from './curriculum.js';
-import { createStudent } from './students.js';
-import { createGrade } from './grades.js';
+import { createUser } from '../auth.js';
+import { createCurriculum } from '../curriculum.js';
+import { createStudent } from '../students.js';
+import { createGrade } from '../grades.js';
 import bcrypt from 'bcrypt';
 
 async function generateAndInsertData() {
