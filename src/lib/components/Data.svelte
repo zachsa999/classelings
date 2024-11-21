@@ -5,6 +5,12 @@
 
     export let data = [];
     export let columns = [];
+    let cells;
+
+    onMount(() => {
+        cells = document.querySelectorAll('td:not(.actions)');
+    });
+
 
     let debug = false;
     
