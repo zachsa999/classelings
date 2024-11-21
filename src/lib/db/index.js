@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-import { handleDatabaseError } from '../utils.js';
+import { handleDatabaseError } from './utils.js';
 
 let dbInstance = null;
 
@@ -15,6 +15,7 @@ export async function getDb() {
         return dbInstance;
     } catch (error) {
         handleDatabaseError(error, 'getDb');
+ 
     }
 }
 
@@ -26,6 +27,6 @@ export async function closeDb() {
 }
 
 // Export other modules
-export * from '../curriculum.js';
-export * from '../students.js';
-export * from '../grades.js'; 
+export * from './curriculum.js';
+export * from './students.js';
+export * from './grades.js'; 

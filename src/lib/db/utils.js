@@ -1,10 +1,9 @@
-export class DatabaseError extends Error {
-    constructor(message, operation, originalError) {
-        super(message);
-        this.name = 'DatabaseError';
-        this.operation = operation;
-        this.originalError = originalError;
-    }
+export function createDatabaseError(message, operation, originalError) {
+    const error = new Error(message);
+    error.name = 'DatabaseError';
+    error.operation = operation;
+    error.originalError = originalError;
+    return error;
 }
 
 export async function executeTransaction(db, operations) {
@@ -15,7 +14,7 @@ export async function executeTransaction(db, operations) {
         return result;
     } catch (error) {
         await db.run('ROLLBACK');
-        throw new DatabaseError(
+        throw createDatabaseError(
             'Transaction failed',
             'executeTransaction',
             error
@@ -25,7 +24,7 @@ export async function executeTransaction(db, operations) {
 
 export function handleDatabaseError(error, operation) {
     console.error(`Database error in ${operation}:`, error);
-    throw new DatabaseError(
+    throw createDatabaseError(
         `Database operation failed: ${operation}`,
         operation,
         error

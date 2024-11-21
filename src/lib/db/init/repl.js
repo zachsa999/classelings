@@ -1,4 +1,4 @@
-import { getDb } from './index.js';
+import { getDb } from '../index.js';
 import repl from 'node:repl';
 
 async function startRepl() {

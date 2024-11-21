@@ -1,4 +1,4 @@
-import { getDb } from './index.js';
+import { getDb } from '../index.js';
 import { tableSchemas } from './schema.js';
 
 export async function initDatabase() {

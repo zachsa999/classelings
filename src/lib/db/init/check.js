@@ -1,4 +1,4 @@
-import { getDb } from './index.js';
+import { getDb } from '../index.js';
 
 async function checkDatabase() {
     const db = await getDb();

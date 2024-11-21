@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { getDb } from './index.js';
+import { getDb } from '../index.js';
 import { createUser } from '../auth.js';
 import { createCurriculum } from '../curriculum.js';
 import { createStudent } from '../students.js';

@@ -5,8 +5,10 @@
 
     export let data = [];
     export let columns = [];
+
+    let debug = false;
     
-    let activeCell = { row: 0, col: 0 };
+    let activeCell = { row: 1, col: 1 };
     let editingCell = null;
     let editValue = '';
 
@@ -15,6 +17,10 @@
             if (event.key === 'Escape') {
                 event.preventDefault();
                 cancelEdit();
+            }
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                saveEdit();
             }
             return;
         }
@@ -31,58 +37,51 @@
             return;
         }
 
-        if (event.key.startsWith('Arrow')) {
+        if (event.key.startsWith('Arrow') && !editingCell) {
             event.preventDefault();
             let newRow = rowIndex;
             let newCol = colIndex;
             
-            if (editingCell) {
-                saveEdit();
-            }
+            // if (editingCell) return;
 
             switch(event.key) {
                 case 'ArrowUp':
-                    if (rowIndex > 0) {
-                        newRow = rowIndex - (event.shiftKey ? 2 : 1);
-                        if (newRow < 0) newRow = 0;
-                    }
+                    newRow = rowIndex > 1 ? rowIndex - 1 : 1;
+                    newCol = colIndex;
                     break;
                 case 'ArrowDown':
-                    if (rowIndex < data.length - 1) {
-                        newRow = rowIndex + (event.shiftKey ? 2 : 1);
-                        if (newRow >= data.length) newRow = data.length - 1;
-                    }
+                    newRow = rowIndex < data.length ? rowIndex + 1 : data.length;
+                    newCol = colIndex;
                     break;
                 case 'ArrowLeft':
-                    if (colIndex > 0) {
-                        newCol = colIndex - (event.shiftKey ? 2 : 1);
-                        if (newCol < 0) newCol = 0;
-                    }
+                    newCol = colIndex > 1 ? colIndex - 1 : 1;
+                    newRow = rowIndex;  
                     break;  
                 case 'ArrowRight':
-                    if (colIndex < columns.length - 1) {
-                        newCol = colIndex + (event.shiftKey ? 2 : 1);
-                        if (newCol >= columns.length) newCol = columns.length - 1;
-                    }
-                    break;
+                    newCol = colIndex < columns.length ? colIndex + 1 : columns.length;
+                    newRow = rowIndex;  
+                    break; 
             }
             
             activeCell = { row: newRow, col: newCol };
-            const cells = document.querySelectorAll('td');
-            const targetCell = cells[newRow * columns.length + newCol];
+            console.log("activeCell=", activeCell)
+            const cells = document.querySelectorAll('td:not(.actions)');
+            console.log("cells=", cells.length)
+            const targetCell = cells[(newRow - 1) * columns.length  + (newCol -1)];
+            console.log("targetCell=", targetCell)
             targetCell?.focus();
             return;
-        }
+        } 
         
-        if (event.key.length === 1) {
+        if (event.key.length === 1 && !editingCell) {
             event.preventDefault();
         }
     }
 
     function startEdit(rowIndex, colIndex) {
-        const column = columns[colIndex];
+        const column = columns[colIndex - 1];
         editingCell = { row: rowIndex, col: colIndex };
-        editValue = data[rowIndex][column.key];
+        editValue = data[rowIndex - 1][column.key];
         setTimeout(() => {
             const input = document.querySelector('td input');
             input?.select();
@@ -92,9 +91,9 @@
     function saveEdit() {
         if (!editingCell) return false;
 
-        const column = columns[editingCell.col];
+        const column = columns[editingCell.col - 1];
         
-        const oldValue = data[editingCell.row][column.key];
+        const oldValue = data[editingCell.row - 1][column.key];
         const newValue = editValue;
         const wasChanged = oldValue !== newValue;
 
@@ -107,7 +106,7 @@
         });
 
         if (wasChanged) {
-            data[editingCell.row][column.key] = newValue;
+            data[editingCell.row - 1][column.key] = newValue;
             dispatch('cellChange', {
                 rowIndex: editingCell.row,
                 columnKey: column.key,
@@ -128,11 +127,14 @@
 </script>
 
 <div class="table-container">
-    <div class="editing-status">
-        {#if editingCell}
-            <div class="status-item">
+    {#if debug}
+        <div class="editing-status">
+            <p>Data length: {data.length}</p>
+            <p>Data width: {columns.length}</p>
+            {#if editingCell}
+                <div class="status-item">
                 <span class="label">Editing:</span>
-                <span class="value">Row {editingCell.row + 1}, Column {editingCell.col + 1}</span>
+                <span class="value">Row {editingCell.row}, Column {editingCell.col}</span>
             </div>
             <div class="status-item">
                 <span class="label">Original Value:</span> 
@@ -145,17 +147,21 @@
         {:else}
             <div class="status-item">
                 <span class="label">Active Cell:</span>
-                <span class="value">Row {activeCell.row + 1}, Column {activeCell.col + 1}</span>
+                <span class="value">Row {activeCell.row}, Column {activeCell.col}</span>
             </div>
         {/if}
         <div class="controls-hint">
             <span>Controls: Enter to edit • Arrow keys to navigate • Esc to cancel • Tab to move right</span>
+            </div>
         </div>
-    </div>
+    {/if}
 
     <table>
         <thead>
             <tr>
+                {#if debug}
+                    <th>#</th>
+                {/if}
                 {#each columns as column}
                     <th>{column.label}</th>
                 {/each}
@@ -163,22 +169,26 @@
             </tr>
         </thead>
         <tbody>
-            {#each data as row, rowIndex}
+            {#each data as row, i}
                 <tr>
-                    {#each columns as column, colIndex}
+                    {#if debug}
+                        <td>{i + 1}</td>
+                    {/if}
+                    {#each columns as column, j}
                         <td 
-                            class:active={activeCell.row === rowIndex && activeCell.col === colIndex}
+                            class:active={activeCell.row === i + 1 && activeCell.col === j + 1}
                             on:click={() => {
-                                activeCell = { row: rowIndex, col: colIndex };
-                                const cells = document.querySelectorAll('td');
-                                const targetCell = cells[rowIndex * columns.length + colIndex];
+                                if (activeCell.row === i + 1 && activeCell.col === j + 1) startEdit(i + 1, j + 1);
+                                activeCell = { row: i + 1, col: j + 1 };
+                                const cells = document.querySelectorAll('td:not(.actions)');
+                                const targetCell = cells[i * columns.length + j];
                                 targetCell?.focus();
                             }}
-                            on:dblclick={() => startEdit(rowIndex, colIndex)}
-                            on:keydown={(e) => handleKeyDown(e, rowIndex, colIndex)}
+                            on:dblclick={() => startEdit(i + 1, j + 1)}
+                            on:keydown={(e) => handleKeyDown(e, i + 1, j + 1)}
                             tabindex="0"
                         >
-                            {#if editingCell && editingCell.row === rowIndex && editingCell.col === colIndex}
+                            {#if editingCell && editingCell.row === i + 1 && editingCell.col === j + 1}
                                 <input
                                     type="text"
                                     bind:value={editValue}
@@ -187,11 +197,11 @@
                                         const currentRow = activeCell.row;
                                         const currentCol = activeCell.col;
                                         activeCell = { row: currentRow, col: currentCol };
-                                        const cells = document.querySelectorAll('td');
-                                        const targetCell = cells[currentRow * columns.length + currentCol];
+                                        const cells = document.querySelectorAll('td:not(.actions)');
+                                        const targetCell = cells[(currentRow - 1) * columns.length + (currentCol - 1)];
                                         targetCell?.focus();
                                     }}
-                                    on:keydown={(e) => handleKeyDown(e, rowIndex, colIndex)}
+                                    on:keydown={(e) => handleKeyDown(e, i + 1, j + 1)}
                                 />
                             {:else}
                                 {row[column.key]}
@@ -201,7 +211,7 @@
                     <td class="actions">
                         <button 
                             class="delete-btn" 
-                            on:click={() => dispatch('deleteRow', { rowIndex, id: row.id })}
+                            on:click={() => dispatch('deleteRow', { rowIndex: i, id: row.id })}
                         >
                             Delete
                         </button>
@@ -238,11 +248,11 @@
         position: relative;
     }
 
-    /* td.active {
-        outline: 2px solid #007bff;
+    td.active {
+        outline: 2px solid #b700ff;
         background-color: #e6f3ff;
         transition: outline-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-    } */
+    }
 
     td:focus {
         outline: 2px solid #007bff;

@@ -1,4 +1,4 @@
-import { handleDatabaseError, executeTransaction } from './utils.js';
+import { handleDatabaseError } from './utils.js';
 
 export async function getStudents(db) {
     try {
