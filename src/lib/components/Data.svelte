@@ -1,6 +1,6 @@
 <script>
     // @ts-ignore
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher, onMount } from 'svelte';
     const dispatch = createEventDispatcher();
 
     export let data = [];
@@ -27,7 +27,7 @@
             if (event.key === 'Enter') {
                 event.preventDefault();
                 saveEdit();
-            }
+            } 
             return;
         }
 
@@ -69,19 +69,24 @@
                     break; 
             }
             
-            activeCell = { row: newRow, col: newCol };
-            console.log("activeCell=", activeCell)
-            const cells = document.querySelectorAll('td:not(.actions)');
-            console.log("cells=", cells.length)
-            const targetCell = cells[(newRow - 1) * columns.length  + (newCol -1)];
-            console.log("targetCell=", targetCell)
-            targetCell?.focus();
+            activateCell(newRow, newCol, cells);
             return;
         } 
         
         if (event.key.length === 1 && !editingCell) {
             event.preventDefault();
         }
+    }
+
+    function setTargetCell(rowIndex, colIndex, cells) {
+        const targetCell = cells[(rowIndex - 1) * columns.length  + (colIndex - 1)];
+        targetCell?.focus();
+    }
+
+    function activateCell(rowIndex, colIndex, cells) {
+        activeCell = { row: rowIndex, col: colIndex };
+        cells = document.querySelectorAll('td:not(.actions)');
+        setTargetCell(rowIndex, colIndex, cells);
     }
 
     function startEdit(rowIndex, colIndex) {
