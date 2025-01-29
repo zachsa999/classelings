@@ -1,74 +1,83 @@
 <script>
-    import Data from '$lib/components/Data.svelte';
-    import { onMount } from 'svelte';
-    let curricula = [];
+	import Data from '$lib/components/Data.svelte';
+	import CurriculumManager from '$lib/components/CurriculumManager.svelte';
 
-    // Define columns for the Data component
-    const columns = [
-        { key: 'title', label: 'Title' },
-        { key: 'subject', label: 'Subject' },
-        { key: 'grade_level', label: 'Grade Level' },
-        { key: 'description', label: 'Description' }
-    ];
+	import { onMount } from 'svelte';
+	let curricula = [];
 
-    onMount(loadCurricula);
+	// Define columns for the Data component
+	const columns = [
+		{ key: 'title', label: 'Title' },
+		{ key: 'subject', label: 'Subject' },
+		{ key: 'grade_level', label: 'Grade Level' },
+		{ key: 'description', label: 'Description' }
+	];
 
-    async function loadCurricula() {
-        const response = await fetch('/api/curriculum');
-        if (response.ok) {
-            curricula = await response.json();
-        } else {
-            console.error('Failed to load curricula:', await response.text());
-        }
-    }
+	onMount(loadCurricula);
 
-    async function handleCellChange(event) {
-        const { rowIndex, columnKey, newValue } = event.detail;
-        const curriculumId = curricula[rowIndex].id;
+	async function loadCurricula() {
+		const response = await fetch('/api/curriculum');
+		if (response.ok) {
+			curricula = await response.json();
+		} else {
+			console.error('Failed to load curricula:', await response.text());
+		}
+	}
 
-        const response = await fetch(`/api/curriculum/${curriculumId}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ [columnKey]: newValue })
-        });
+	async function handleCellChange(event) {
+		const { rowIndex, columnKey, newValue } = event.detail;
+		const curriculumId = curricula[rowIndex].id;
+		server.log('curriculumId=', curriculumId);
 
-        if (!response.ok) {
-            console.error('Failed to update curriculum:', await response.text());
-            // You might want to add error handling here
-        }
-    }
+		const response = await fetch(`/api/curriculum/${curriculumId}`, {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json'
+			},
 
-    async function handleDeleteRow(event) {
-        const { id } = event.detail;
-        
-        const response = await fetch(`/api/curriculum/${id}`, {
-            method: 'DELETE'
-        });
+			body: JSON.stringify({ [columnKey]: newValue })
+		});
 
-        if (response.ok) {
-            curricula = curricula.filter(c => c.id !== id);
-        } else {
-            console.error('Failed to delete curriculum:', await response.text());
-        }
-    }
+		if (!response.ok) {
+			console.error('Failed to update curriculum:', await response.text());
+			// You might want to add error handling here
+		}
+	}
+
+	async function handleDeleteRow(event) {
+		const { id } = event.detail;
+
+		const response = await fetch(`/api/curriculum/${id}`, {
+			method: 'DELETE'
+		});
+
+		if (response.ok) {
+			curricula = curricula.filter((c) => c.id !== id);
+		} else {
+			console.error('Failed to delete curriculum:', await response.text());
+		}
+	}
+	async function handleSaveSuccess() {
+		console.log('handleSaveSuccess');
+		await loadCurricula();
+	}
 </script>
 
 <div class="container">
-    <h2>Current Curricula</h2>
-    <Data 
-        data={curricula}
-        {columns}
-        on:cellChange={handleCellChange}
-        on:deleteRow={handleDeleteRow}
-    />
+	<h2>Current Curricula</h2>
+	<Data
+		data={curricula}
+		{columns}
+		on:cellChange={handleCellChange}
+		on:deleteRow={handleDeleteRow}
+		on:saveSuccess={handleSaveSuccess}
+	/>
 </div>
 
 <style>
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1rem;
-    }
-</style>        
+	.container {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 1rem;
+	}
+</style>

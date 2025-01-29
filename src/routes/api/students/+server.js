@@ -2,14 +2,16 @@ import { json } from '@sveltejs/kit';
 import { getStudents, createStudent } from '$lib/db';
 
 export async function POST({ request, locals }) {
-    const { name, grade_level, parent_name, gender } = await request.json();
+    const { name, grade_level, parent_name, gender, birth_date } = await request.json();
     
     try {
         const id = await createStudent(locals.db, {
             name,
             grade_level,
             parent_name,
-            gender
+            gender,
+            birth_date,
+            user_id: locals.user
         });
         
         return json({ 
@@ -17,7 +19,8 @@ export async function POST({ request, locals }) {
             name, 
             grade_level,
             parent_name,
-            gender
+            gender,
+            birth_date
         });
     } catch (error) {
         return json({ error: error.message }, { status: 500 });

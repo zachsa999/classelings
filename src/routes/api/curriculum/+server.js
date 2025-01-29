@@ -4,7 +4,7 @@ import { getCurricula, createCurriculum } from '$lib/db';
 export async function POST({ request, locals }) {
     const { title, subject, grade_level, description } = await request.json();
     const db = locals.db;
-    const teacherId = locals.user;
+    const userId = locals.user;
 
     try {
         const id = await createCurriculum(db, {
@@ -12,7 +12,7 @@ export async function POST({ request, locals }) {
             subject,
             grade_level,
             description,
-            teacher_id: teacherId
+            user_id: userId
         });
         return json({ id });
     } catch (error) {

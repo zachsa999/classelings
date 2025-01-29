@@ -48,7 +48,6 @@
             let newRow = rowIndex;
             let newCol = colIndex;
             
-            // if (editingCell) return;
 
             switch(event.key) {
                 case 'ArrowUp':
@@ -103,27 +102,21 @@
         if (!editingCell) return false;
 
         const column = columns[editingCell.col - 1];
-        
         const oldValue = data[editingCell.row - 1][column.key];
         const newValue = editValue;
         const wasChanged = oldValue !== newValue;
 
-        console.log('Data.svelte saveEdit:', {
-            oldValue,
-            newValue,
-            wasChanged,
-            rowIndex: editingCell.row,
-            columnKey: column.key
-        });
-
         if (wasChanged) {
-            data[editingCell.row - 1][column.key] = newValue;
+            // data[editingCell.row - 1][column.key] = newValue;
             dispatch('cellChange', {
                 rowIndex: editingCell.row,
                 columnKey: column.key,
                 oldValue,
-                newValue
+                newValue,
+                id: data[editingCell.row - 1].id
             });
+            dispatch('saveSuccess');
+
         }
 
         editingCell = null;

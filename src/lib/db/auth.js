@@ -17,7 +17,7 @@ export async function validateUser(db, { email, password }) {
 export async function createSession(db, userId) {
     try {
         const sessionToken = uuidv4();
-        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         await db.run(
             'INSERT INTO sessions (session_token, user_id, expires_at) VALUES (?, ?, ?)',

@@ -2,14 +2,19 @@ import { json } from '@sveltejs/kit';
 import { updateCurriculum } from '$lib/db';
 
 export async function PATCH({ params, request, locals }) {
+    console.log('=== PATCH /api/curriculum/[id] START ===');    
+    console.log("params=", params)
     const curriculumId = params.id;
-    const { field, value } = await request.json();
+    const data = await request.json();
     
     try {
-        await updateCurriculum(locals.db, curriculumId, { [field]: value });
+        await updateCurriculum(locals.db, curriculumId, data);
+        console.log('=== PATCH /api/curriculum/[id] END ===', data, curriculumId);
         return new Response(null, { status: 204 });
     } catch (error) {
+        console.error('Patch error:', error);
         return json({ error: error.message }, { status: 500 });
+
     }
 }
 

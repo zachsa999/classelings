@@ -21,21 +21,23 @@ export const tableSchemas = {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             subject TEXT NOT NULL,
-            grade_level INTEGER NOT NULL CHECK(grade_level BETWEEN 1 AND 12),
+            variant TEXT NOT NULL,
             description TEXT,
-            teacher_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (teacher_id) REFERENCES users (id)
+            FOREIGN KEY (user_id) REFERENCES users (id)
         )
     `,
-    students: `
+    students: ` 
         CREATE TABLE students (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             grade_level INTEGER NOT NULL CHECK(grade_level BETWEEN 1 AND 12),
             parent_name TEXT,
-            gender TEXT CHECK(gender IN ('male', 'female', 'other')),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            birth_date DATE,
+            gender TEXT CHECK(gender IN ('male', 'female')),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            user_id INTEGER NOT NULL REFERENCES users (id)
         )
     `,
     grades: `
@@ -48,6 +50,37 @@ export const tableSchemas = {
             submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (student_id) REFERENCES students (id),
             FOREIGN KEY (curriculum_id) REFERENCES curricula (id)
+        )
+    `,
+    student_curriculum: `
+        CREATE TABLE student_curriculum (
+            student_id INTEGER NOT NULL,
+            curriculum_id INTEGER NOT NULL,
+            assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+            FOREIGN KEY (curriculum_id) REFERENCES curricula(id) ON DELETE CASCADE,
+            PRIMARY KEY (student_id, curriculum_id)
+        )
+    `,
+    conduct_criteria: `
+        CREATE TABLE conduct_criteria (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            description TEXT,
+            category TEXT DEFAULT 'general'
+        )
+    `,
+    conduct_grades: `
+        CREATE TABLE conduct_grades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER NOT NULL,
+            criteria_id INTEGER NOT NULL,
+            score INTEGER CHECK(score >= 1 AND score <= 4), -- 1=Poor, 2=Fair, 3=Good, 4=Excellent
+            comment TEXT,
+            grading_period TEXT NOT NULL,  -- e.g., '2024-Q1', '2024-Q2'
+            submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+            FOREIGN KEY (criteria_id) REFERENCES conduct_criteria(id) ON DELETE CASCADE
         )
     `
 }; 

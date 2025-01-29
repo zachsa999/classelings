@@ -1,8 +1,4 @@
 <script>
-	import { Table } from '@vincjo/svelte-table'; // Add this import
-
-	let curricula = []; // Add this to store your curriculum data
-
 	let newCurriculum = {
 		title: '',
 		subject: '',
@@ -32,14 +28,6 @@
 			console.error('Failed to add curriculum:', await response.text());
 		}
 	}
-	async function loadCurricula() {
-		const response = await fetch('/api/curriculum');
-		if (response.ok) {
-			curricula = await response.json();
-		} else {
-			console.error('Failed to load curricula:', await response.text());
-		}
-	}
 
 	async function updateCurriculum(id, field, value) {
 		const response = await fetch(`/api/curriculum/${id}`, {
@@ -52,9 +40,6 @@
 			console.error('Failed to update curriculum:', await response.text());
 		}
 	}
-	onMount(() => {
-		loadCurricula();
-	});
 </script>
 
 <h1>Curriculum Management</h1>
@@ -95,3 +80,52 @@
 		<button type="submit">Add Curriculum</button>
 	</form>
 </div>
+
+<div class="table-container">
+	<h2>Current Curricula</h2>
+	<Table data={curricula} search={true} sort={true} pagination={true} rowsPerPage={10}>
+		<thead slot="header">
+			<tr>
+				<th>Title</th>
+				<th>Subject</th>
+				<th>Grade Level</th>
+				<th>Description</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody slot="body" let:rows>
+			{#each rows as row}
+				<tr>
+					<td>{row.title}</td>
+					<td>{row.subject}</td>
+					<td>{row.grade_level}</td>
+					<td>{row.description}</td>
+					<td>
+						<button on:click={() => editCurriculum(row)}>Edit</button>
+						<button on:click={() => deleteCurriculum(row.id)}>Delete</button>
+					</td>
+				</tr>
+			{/each}
+		</tbody>
+	</Table>
+</div>
+
+<style>
+	.table-container {
+		margin-top: 2rem;
+	}
+
+	:global(.svelte-table) {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	:global(.svelte-table th, .svelte-table td) {
+		padding: 0.75rem;
+		border: 1px solid #ddd;
+	}
+
+	:global(.svelte-table th) {
+		background-color: #f5f5f5;
+	}
+</style>

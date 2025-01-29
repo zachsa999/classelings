@@ -29,4 +29,12 @@ export function handleDatabaseError(error, operation) {
         operation,
         error
     );
+}
+
+export function logDatabaseChange(operation, details) {
+    const timestamp = new Date().toISOString();
+    console.log(`[DB Change ${timestamp}]`, {
+        operation,
+        ...details
+    });
 } 

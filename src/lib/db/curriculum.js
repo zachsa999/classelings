@@ -1,22 +1,22 @@
 import { handleDatabaseError } from './utils.js';
 
-export async function getCurricula(db, teacherId) {
+export async function getCurricula(db, userId) {
     try {
         return await db.all(
-            'SELECT * FROM curricula WHERE teacher_id = ? ORDER BY grade_level, subject',
-            [teacherId]
+            'SELECT * FROM curricula WHERE user_id = ? ORDER BY variant, subject',
+            [userId]
         );
     } catch (error) {
         handleDatabaseError(error, 'getCurricula');
     }
 }
 
-export async function createCurriculum(db, { title, subject, grade_level, description, teacher_id }) {
+export async function createCurriculum(db, { title, subject, variant, description, user_id }) {
     try {
         const result = await db.run(
-            `INSERT INTO curricula (title, subject, grade_level, description, teacher_id) 
+            `INSERT INTO curricula (title, subject, variant, description, user_id) 
              VALUES (?, ?, ?, ?, ?)`,
-            [title, subject, grade_level, description, teacher_id]
+            [title, subject, variant, description, user_id]
         );
         return result.lastID;
     } catch (error) {

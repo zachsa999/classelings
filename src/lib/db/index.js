@@ -9,7 +9,7 @@ export async function getDb() {
     
     try {
         dbInstance = await open({
-            filename: './../grading_app.db',
+            filename: 'grading_app.db',
             driver: sqlite3.Database
         });
         return dbInstance;
